@@ -6,11 +6,11 @@ using namespace std;
  * Function prototypes
 *******************************************************************************/
 
-unsigned fact(unsigned);
-unsigned fib(unsigned);
-unsigned mult(unsigned, unsigned);
-unsigned power(unsigned, unsigned);
-unsigned product(unsigned, unsigned);
+unsigned factTail(unsigned, unsigned result = 1);
+unsigned fibTail(unsigned, unsigned x = 0, unsigned y = 1);
+unsigned multTail(unsigned, unsigned, unsigned result = 0);
+unsigned powerTail(unsigned, unsigned, unsigned result = 1);
+unsigned productTail(unsigned, unsigned, unsigned result = 1);
 
 /*******************************************************************************
  * Description:
@@ -26,16 +26,16 @@ unsigned product(unsigned, unsigned);
 
 int main() {
     // try a ridiculous case that won't work without tail recursion
-    cout << "6 * 123000 = " << mult(6, 123000) << endl;
+    cout << "6 * 123000 = " << multTail(6, 123000) << endl;
     
     // these functions can't demonstrate the usefulness of tail recursion
     // due to data type overflow, but still, good practice
-    cout << "3 ^ 10 = " << power(3, 10) << endl;
-    cout << "8 * 9 * ... * 15 = " << product(8, 15) << endl;
-    cout << "10! = " << fact(10) << endl;
+    cout << "3 ^ 10 = " << powerTail(3, 10) << endl;
+    cout << "8 * 9 * ... * 15 = " << productTail(8, 15) << endl;
+    cout << "10! = " << factTail(10) << endl;
 
     // without tail recursion, this next call is going to take a while
-    cout << "50th Fibonacci number is " << fib(50) << endl;
+    cout << "50th Fibonacci number is " << fibTail(50) << endl;
 
     // terminate
     return 0;
@@ -46,61 +46,66 @@ int main() {
  * TODO: make them tail recursive :)
 *******************************************************************************/
 
-unsigned fact(unsigned n) {
+unsigned factTail(unsigned n, unsigned result) {
     // base cases (combined)
     if (n <= 1) {
-        return 1;
+        return result;
     }
 
     // recursive case
-    unsigned res = fact(n - 1);
-    return res * n;
+    return factTail(n - 1, n * result);
 }
 
-unsigned fib(unsigned n) {
+unsigned fibTail(unsigned n, unsigned x, unsigned y) {
     // base case 1
     if (n == 0) {
-        return 0;
+        return x;
     }
 
     // base case 2
     else if (n == 1) {
-        return 1;
+        return y;
     }
 
     // recursive case
-    return fib(n - 1) + fib(n - 2);
+    return fibTail(n - 1, y, x + y);
 }
 
-unsigned mult(unsigned x, unsigned y) {
+unsigned multTail(unsigned x, unsigned y, unsigned result) {
     // base case
     if (y == 0) {
-        return 0;
+        return result;
     }
 
     // recursive case
-    unsigned res = mult(x, y - 1);
-    return res + x;
+    /************************************************************************
+    * had issues with this function and needed help with this and found
+    * out this function doesn't guarantee tail recursion by the compiler
+    *************************************************************************/
+    if(y % 2 == 0){
+        return multTail(x + x, y / 2, result); 
+    }
+    else {
+        return multTail(x, y - 1, result + x);
+    }
 }
 
-unsigned power(unsigned x, unsigned y) {
+unsigned powerTail(unsigned x, unsigned y, unsigned result) {
     // base case
     if (y == 0) {
-        return 1;
+        return result;
     }
 
     // recursive case
-    unsigned res = power(x, y - 1);
-    return res * x;
+    return powerTail(x, y - 1, result * x);
 }
 
-unsigned product(unsigned x, unsigned y) {
+unsigned productTail(unsigned x, unsigned y, unsigned result) {
     // base case
-    if (x == y) {
-        return x;
+    if (x > y) {
+        return result;
     }
 
     // recursive case
-    unsigned p = product(x + 1, y);
-    return p * x;
+    return productTail(x + 1, y, result * x);
 }
